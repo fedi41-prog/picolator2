@@ -71,9 +71,17 @@ pico_set_program_version(picolator2 "0.1")
 pico_enable_stdio_uart(picolator2 0)
 pico_enable_stdio_usb(picolator2 1)
 
+add_library(cjson
+    lib/cJSON/cJSON.c
+)
+
+target_include_directories(cjson PUBLIC
+    lib/cJSON
+)
+
 # Add the standard library to the build
 target_link_libraries(picolator2
-        pico_stdlib)
+        pico_stdlib cjson)
 
 # Add the standard include files to the build
 target_include_directories(picolator2 PRIVATE
@@ -94,6 +102,7 @@ target_link_libraries(picolator2
     pico_cyw43_arch_lwip_threadsafe_background
     pico_lwip_mbedtls 
     pico_mbedtls 
+    cjson
 )
 
 pico_add_extra_outputs(picolator2)

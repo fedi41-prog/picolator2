@@ -16,13 +16,13 @@ class AiChatApp : public App {
         void update() override;
         void init() override;
         void onKeyboardCallback();
-        void onAiCallback(std::string answer);
+        void onAiCallback(MistralResult result);
 
     private:
 
         std::string prompt = "";
         std::string answer = "";
-        MistralResult result = 
+        MistralError error = MistralError::NONE; 
 
         bool thinking = false;
         

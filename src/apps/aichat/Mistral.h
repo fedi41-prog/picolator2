@@ -160,17 +160,25 @@ inline int parse_http_status(const std::string &raw) {
     if (second_space == std::string::npos)
         return 0;
 
-    try {
-        return std::stoi(
-            raw.substr(
-                first_space + 1,
-                second_space - first_space - 1
-            )
+    const std::string status =
+        raw.substr(
+            first_space + 1,
+            second_space - first_space - 1
         );
-    }
-    catch (...) {
+
+    if (status.empty())
         return 0;
+
+    int result = 0;
+
+    for (char c : status) {
+        if (c < '0' || c > '9')
+            return 0;
+
+        result = result * 10 + (c - '0');
     }
+
+    return result;
 }
 
 // ---------------------------------------------------------------------
