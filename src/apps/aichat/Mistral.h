@@ -16,8 +16,6 @@
 
 #include "cJSON.h"
 
-#define MISTRAL_API_KEY "u really thought i would leak my api key?"
-
 #define API_HOST "api.mistral.ai"
 #define API_PORT 443
 #define API_PATH "/v1/chat/completions"
@@ -68,6 +66,9 @@ namespace mistral_internal {
 
 struct RequestState {
     std::function<void(MistralResult)> callback;
+
+    // API key for this request
+    std::string api_key;
 
     // Raw HTTP response
     std::string response_buf;
@@ -564,26 +565,21 @@ inline err_t on_connect(
 
     char header[512];
 
-    int n = snprintf(
-        header,
+    int n = snprintf( 
+        header, 
         sizeof(header),
-
         "POST %s HTTP/1.1\r\n"
         "Host: %s\r\n"
         "Authorization: Bearer %s\r\n"
         "Content-Type: application/json\r\n"
-        "Content-Length: %d\r\n"
-        "Connection: close\r\n"
+        "Content-Length: %d\r\n" "Connection: close\r\n"
         "\r\n",
-
         API_PATH,
-        API_HOST,
-        MISTRAL_API_KEY,
-        static_cast<int>(
-            g_pending_body.size()
-        )
+        API_HOST, 
+        st->api_key.c_str(), 
+        static_cast<int>( g_pending_body.size() ) 
     );
-
+    
     err_t write_err =
         altcp_write(
             pcb,
@@ -784,10 +780,11 @@ inline void on_dns_found(
 // Public API
 // ---------------------------------------------------------------------
 
-static void send_promt(
+static void send_promt( 
     std::string prompt,
-    std::function<void(MistralResult)> callback
-) {
+    std::string api_key, 
+    std::function<void(MistralResult)> callback 
+    ) {    
     using namespace mistral_internal;
 
     // -------------------------------------------------------------
@@ -840,6 +837,9 @@ static void send_promt(
 
     g_state->callback =
         callback;
+
+    g_state->api_key = 
+        std::move(api_key);
 
     // -------------------------------------------------------------
     // DNS lookup

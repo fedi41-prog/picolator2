@@ -1,4 +1,4 @@
-
+#include "storage/Storage.h"
 #include "AiChatApp.h"
 #include "core/Display.h"
 #include "fonts/fonts.h"
@@ -44,12 +44,23 @@ void AiChatApp::render() {
         DrawUtils::drawLines(5, 60, TextUtils::stringFit(prompt, 19), CURRENT_THEME->secondary[8], Display::alpha, &Font6x8, 2);
     } 
     else {
-        if (answer.empty()) {
-            Display::drawCenteredString(58, "Promt:", CURRENT_THEME->primary[10], Display::alpha, &Font6x8, 2);
-            DrawUtils::drawLines(5, 75, TextUtils::stringFit(prompt, 19), CURRENT_THEME->primary[8], Display::alpha, &Font6x8, 2); 
-        } else {
+        if (result.success()) {
+          if (result.content.empty()) {
+            Display::drawCenteredString(58, "Answer is empty", CURRENT_THEME->primary[10], Display::alpha, &Font6x8, 2);
+            //DrawUtils::drawLines(5, 75, TextUtils::stringFit(prompt, 19), CURRENT_THEME->primary[8], Display::alpha, &Font6x8, 2); 
+          } else {
             Display::drawCenteredString(58, "Response:", CURRENT_THEME->primary[10], Display::alpha, &Font6x8, 2);
             DrawUtils::drawLines(5, 75, TextUtils::stringFit(answer, 19), CURRENT_THEME->primary[8], Display::alpha, &Font6x8, 2); 
+          }
+        } else if (result.error == MistralError::INVALID_API_KEY) {
+          Display::drawCenteredString(58, "Invalid API-KEY", CURRENT_THEME->primary[10], Display::alpha, &Font6x8, 2);
+        } else if (result.error == MistralError::CONNECTION_ERROR) {
+          Display::drawCenteredString(58, "connection error", CURRENT_THEME->primary[10], Display::alpha, &Font6x8, 2);
+        } else if (result.error == MistralError::UNKNOWN_ERROR) {
+          Display::drawCenteredString(58, "UNKNOWN ERROR", CURRENT_THEME->primary[10], Display::alpha, &Font6x8, 2);
+        } else {
+          Display::drawCenteredString(58, "unhandled error", CURRENT_THEME->primary[10], Display::alpha, &Font6x8, 2);
+          DrawUtils::drawLines(5, 75, TextUtils::stringFit("because I am to lazy to write handlers for all errors :because I am to lazy to write handlers for all errors :3", 19), CURRENT_THEME->primary[8], Display::alpha, &Font6x8, 2); 
         }
     }
 }
@@ -74,8 +85,9 @@ void AiChatApp::update() {
         keyboardOpened = false;
 
         thinking = true;
+        std::string apiKey = Storage::data.mistralApiKey; 
 
-        send_promt(prompt, [this](MistralResult result) {
+        send_promt(prompt, apiKey,[this](MistralResult result) {
             onAiCallback(result);
         });
 
@@ -86,8 +98,12 @@ void AiChatApp::update() {
 void AiChatApp::onAiCallback(
         MistralResult result
     ) {
-    answer = result.content;
+    thinking = false; 
+
+    result = result;
+    printf(result.content.data());
     setDirty();
+    
 }
 
 void AiChatApp::onKeyboardCallback() {

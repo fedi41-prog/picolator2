@@ -21,7 +21,7 @@ public:
             if (Input::justPressed(KEY_Y)) {
                 
                 strncpy(Storage::data.mistralApiKey, apikey.c_str(), sizeof(Storage::data.mistralApiKey) - 1);
-                Storage::data.wifiSSID[sizeof(Storage::data.mistralApiKey) - 1] = '\0'; // sicherstellen, dass Nullterminator gesetzt ist
+                Storage::data.mistralApiKey[sizeof(Storage::data.mistralApiKey) - 1] = '\0'; // sicherstellen, dass Nullterminator gesetzt ist
 
                 Storage::save();
                 
@@ -31,16 +31,7 @@ public:
     };
 
     void keyboardCallback() {
-        switch (pointer) {
-            case 0:
-                ssid = keyboard.string;
-                break;
-            case 1:
-                password = keyboard.string;
-                break;
-            default:
-                break;
-        }
+        apikey = keyboard.string;
         setDirty();
     };
 
@@ -51,7 +42,7 @@ public:
 
         Display::clear(CURRENT_THEME->surface[2]);
 
-        Display::drawString(0, 5, "API-KEY: " + apikey, (pointer == 0 ? Display::alpha : 0x0000), (pointer == 1 ? Display::alpha : 0x0000), false, &Font6x8, 1);
+        Display::drawString(0, 5, "API-KEY: " + apikey, Display::alpha, CURRENT_THEME->surface[9], false, &Font6x8, 1);
 
         if (keboardActive) {
             

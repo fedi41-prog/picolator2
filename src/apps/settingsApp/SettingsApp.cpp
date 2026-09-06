@@ -9,7 +9,7 @@
 Theme* themes[3] = {&THEMES::classicTheme, &THEMES::testTheme, &THEMES::hackerTheme};
 
 void SettingsApp::init() {
-    mainSettingsMenuScreen.items = {"Display", "Theme", "Features", "Wifi"};
+    mainSettingsMenuScreen.items = {"Display", "Theme", "Features", "Wifi", "Mistral settings"};
     mainSettingsMenuScreen.heading = "Settings";
 
     featureMenu.heading = "Features";
@@ -18,6 +18,8 @@ void SettingsApp::init() {
 
     wifiPage.ssid = Storage::data.wifiSSID;
     wifiPage.password = Storage::data.wifiPASS;
+
+
     
     for (Feature* feature : FeatureManager::features) {
         featureMenu.items.push_back(feature->getName());
@@ -42,6 +44,9 @@ void SettingsApp::render() {
         break;
     case SETTINGS_WIFI:
         wifiPage.render();
+        break;
+    case SETTINGS_MISTRAL:
+        mistralSettings.render();
         break;
     default:
         break;
@@ -80,6 +85,10 @@ void SettingsApp::update() {
                 case 3:
                     currentPage = SETTINGS_WIFI;
                     break;
+                case 4:
+                    currentPage = SETTINGS_MISTRAL;
+                    break;
+                
                 default:
                     break;
                 }
@@ -111,6 +120,10 @@ void SettingsApp::update() {
         case SETTINGS_WIFI:
             wifiPage.update();
             if (wifiPage.isDirty()) {setDirty();}
+            break;
+        case SETTINGS_MISTRAL:
+            mistralSettings.update();
+            if (mistralSettings.isDirty()) {setDirty();}
             break;
         default:
             break;

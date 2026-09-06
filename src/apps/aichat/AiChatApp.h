@@ -22,8 +22,7 @@ class AiChatApp : public App {
 
         std::string prompt = "";
         std::string answer = "";
-        MistralError error = MistralError::NONE; 
-
+        MistralResult result; 
         bool thinking = false;
         
         bool keyboardOpened = false; 
